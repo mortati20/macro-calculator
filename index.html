@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mortati Mindset Macro Calculator</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 {
+      color: #ff0000;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      background-color: #ff0000;
+      color: white;
+      padding: 0.7rem;
+      border: none;
+      border-radius: 5px;
+      margin-top: 1.5rem;
+      cursor: pointer;
+      width: 100%;
+    }
+    .result {
+      margin-top: 2rem;
+      padding: 1rem;
+      background-color: #111;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Macro Calculator</h1>
+  <p>Calculate your calories and macros based on your body and your goal.</p>
+  <form id="macroForm">
+    <label>Gender:
+      <select id="gender">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+    </label>
+    <label>Age:
+      <input type="number" id="age" required />
+    </label>
+    <label>Height (cm):
+      <input type="number" id="height" required />
+    </label>
+    <label>Weight (kg):
+      <input type="number" id="weight" required />
+    </label>
+    <label>Activity Level:
+      <select id="activity">
+        <option value="1.2">Sedentary</option>
+        <option value="1.375">Lightly active</option>
+        <option value="1.55">Moderately active</option>
+        <option value="1.725">Very active</option>
+        <option value="1.9">Extra active</option>
+      </select>
+    </label>
+    <label>Goal:
+      <select id="goal">
+        <option value="cut">Fat Loss</option>
+        <option value="maintain">Maintenance</option>
+        <option value="bulk">Muscle Gain</option>
+      </select>
+    </label>
+    <button type="submit">Calculate Macros</button>
+  </form>
+
+  <div id="results" class="result" style="display:none;"></div>
+
+  <script>
+    document.getElementById('macroForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const gender = document.getElementById('gender').value;
+      const age = +document.getElementById('age').value;
+      const height = +document.getElementById('height').value;
+      const weight = +document.getElementById('weight').value;
+      const activity = +document.getElementById('activity').value;
+      const goal = document.getElementById('goal').value;
+
+      let bmr = gender === 'male'
+        ? 10 * weight + 6.25 * height - 5 * age + 5
+        : 10 * weight + 6.25 * height - 5 * age - 161;
+
+      let tdee = bmr * activity;
+      let calories;
+
+      if (goal === 'cut') calories = tdee * 0.8;
+      else if (goal === 'bulk') calories = tdee * 1.15;
+      else calories = tdee;
+
+      const weightLb = weight * 2.20462;
+      let protein = goal === 'cut' ? 1.2 * weightLb : 1.0 * weightLb;
+      let proteinCals = protein * 4;
+
+      let carbsPercent = goal === 'cut' ? 0.35 : goal === 'bulk' ? 0.50 : 0.45;
+      let carbs = (calories * carbsPercent) / 4;
+      let fat = (calories - (proteinCals + carbs * 4)) / 9;
+
+      document.getElementById('results').style.display = 'block';
+      document.getElementById('results').innerHTML = `
+        <strong>Calories:</strong> ${Math.round(calories)} kcal/day<br>
+        <strong>Protein:</strong> ${Math.round(protein)}g<br>
+        <strong>Carbs:</strong> ${Math.round(carbs)}g<br>
+        <strong>Fats:</strong> ${Math.round(fat)}g
+      `;
+    });
+  </script>
+</body>
+</html>
